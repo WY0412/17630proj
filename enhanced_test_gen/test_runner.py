@@ -6,7 +6,7 @@ import json
 import re
 
 class TestRunner:
-    def __init__(self, source_file, test_file):
+    def __init__(self, test_file):
         """
         Initialize the test runner.
         
@@ -14,10 +14,7 @@ class TestRunner:
             source_file: Path to the source file
             test_file: Path to the test file
         """
-        self.source_file = source_file
         self.test_file = test_file
-        self.source_dir = os.path.dirname(os.path.abspath(source_file))
-        self.source_module = os.path.splitext(os.path.basename(source_file))[0]
         
     def run_tests(self):
         """

@@ -47,7 +47,7 @@ def main():
     
     # Generate tests
     print(f"\n{Fore.GREEN}Starting test generation...{Style.RESET_ALL}")
-    success = generator.generate_tests()
+    generator.generate_tests()
     
     # Final message
     print(f"\n{Fore.CYAN}Tests saved to: {generator.test_file}{Style.RESET_ALL}")

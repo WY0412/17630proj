@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 import subprocess
-
+import json
 from enhanced_test_gen.ai_caller import AICaller
 from enhanced_test_gen.test_runner import TestRunner
 from enhanced_test_gen.prompts.test_generation import build_prompt
@@ -29,13 +29,18 @@ class TestGenerator:
             self.test_file = test_file
             
         self.ai_caller = AICaller(model=model)
-        self.test_runner = TestRunner(source_file, self.test_file)
+        self.test_runner = TestRunner(self.test_file)
         self.target_coverage = target_coverage
     
     def read_source_code(self):
         """Read the source code file."""
         with open(self.source_file, "r") as f:
             return f.read()
+    
+    def read_source_json(self):
+        """Read the source code file."""
+        with open(self.source_file, "r") as f:
+            return json.load(f)
     
     def read_existing_tests(self):
         """Read existing test file if it exists."""
@@ -44,7 +49,7 @@ class TestGenerator:
                 return f.read()
         return None
     
-    def save_tests(self, tests, append=True):
+    def save_tests(self, tests):
         """
         Save generated tests to the test file.
         
@@ -52,19 +57,10 @@ class TestGenerator:
             tests: Generated test code
             append: Whether to append to existing file
         """
-        existing_tests = self.read_existing_tests() if append else None
-        
-        # Ensure tests have required imports
-        tests = self._ensure_required_imports(tests)
         
         # Write or append to file
-        with open(self.test_file, "w" if not existing_tests else "a") as f:
-            if not existing_tests:
-                f.write(tests)
-            else:
-                # Add a divider to separate new tests
-                f.write("\n\n# ===== New tests added =====\n\n")
-                f.write(tests)
+        with open(self.test_file, "w") as f:
+            f.write(tests)
         
         print(f"Tests saved to {self.test_file}")
         
@@ -202,14 +198,13 @@ class TestGenerator:
         cleaned_tests = self._ensure_required_imports(cleaned_tests)
         
         # Add new tests to test file
-        self.save_tests(cleaned_tests, append=False)
+        self.save_tests(cleaned_tests)
         
         # Run tests and analyze coverage
         coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
         print(f"Coverage after test generation: {coverage_data.get('coverage_pct', 0)}% (Target: {self.target_coverage}%)")
         self._report_coverage(coverage_data)
         
-        return True
     
     def _clean_up_tests(self, tests):
         """Clean up the generated tests."""
