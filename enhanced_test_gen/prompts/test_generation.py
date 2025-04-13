@@ -57,7 +57,7 @@ For each function in the source code:
 Return ONLY runnable pytest test code without explanations or markdown formatting.
 """
 
-def build_prompt(source_code, existing_tests=None, coverage_report=None, iteration=1, target_coverage=80):
+def build_prompt(source_code, existing_tests=None, coverage_report=None, target_coverage=80):
     """Build the prompt for test generation."""
     from jinja2 import Template
     
@@ -66,7 +66,6 @@ def build_prompt(source_code, existing_tests=None, coverage_report=None, iterati
         source_code=source_code,
         existing_tests=existing_tests,
         coverage_report=coverage_report,
-        iteration=iteration,
         target_coverage=target_coverage
     )
     

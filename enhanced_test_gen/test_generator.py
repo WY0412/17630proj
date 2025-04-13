@@ -31,8 +31,6 @@ class TestGenerator:
         self.ai_caller = AICaller(model=model)
         self.test_runner = TestRunner(source_file, self.test_file)
         self.target_coverage = target_coverage
-        self.iterations = 0
-        self.max_iterations = 5  # Maximum number of iterations to try
     
     def read_source_code(self):
         """Read the source code file."""
@@ -151,68 +149,67 @@ class TestGenerator:
         
         return tests
         
-    def generate_tests(self, iterations=1):
+    def _report_coverage(self, coverage_data):
+        """Report coverage and test results"""
+        coverage_pct = coverage_data.get('coverage_pct', 0)
+        print(f"Current coverage: {coverage_pct}% (Target: {self.target_coverage}%)")
+        
+        if coverage_data.get('target_reached', False):
+            print(f"🎉 Target coverage of {self.target_coverage}% reached!")
+        else:
+            print(f"⚠️ Target coverage of {self.target_coverage}% not reached.")
+            
+        # Print failed tests
+        failed_tests = coverage_data.get('failed_tests', [])
+        if failed_tests:
+            print(f"\n❌ Failed tests ({len(failed_tests)}):")
+            for test in failed_tests:
+                print(f"  - {test}")
+
+    def generate_tests(self):
         """
-        Simplified generate_tests - iteratively generate tests until target coverage is reached
+        Generate tests only if test file doesn't exist
         """
         # Read source code
         source_code = self.read_source_code()
         
         # Check if test file exists
         existing_tests = self.read_existing_tests()
-        if not existing_tests:
-            print(f"Creating new test file: {self.test_file}")
-        else:
+        if existing_tests:
             print(f"Found existing test file: {self.test_file}")
-        
-        # Loop to generate tests until target coverage or max iterations
-        for i in range(iterations):
-            self.iterations += 1
-            print(f"\n===== Iteration {self.iterations} =====")
-            
             # Run tests and analyze coverage
             coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
-            
-            # Check if target is reached
-            if coverage_data.get('target_reached', False):
-                print(f"🎉 Target coverage of {self.target_coverage}% reached at iteration {self.iterations}!")
-                return True
-            
-            # Not reached target, continue generating tests
-            coverage_pct = coverage_data.get('coverage_pct', 0)
-            report = coverage_data.get('report', '')
-            
-            print(f"Current coverage: {coverage_pct}% (Target: {self.target_coverage}%)")
-            
-            if i < iterations - 1:
-                print("Generating new tests...")
-                
-                # Build prompt with source code, existing tests, and coverage report
-                prompt = build_prompt(
-                    source_code=source_code,
-                    existing_tests=self.read_existing_tests(),  # Re-read to include previously added tests
-                    coverage_report=report,
-                    iteration=self.iterations
-                )
-                
-                # Call AI model to generate new tests
-                generated_tests = self.ai_caller.call_model(prompt)
-                
-                # Clean up generated test code
-                cleaned_tests = self._clean_up_tests(generated_tests)
-                
-                # Ensure tests have correct imports
-                cleaned_tests = self._ensure_required_imports(cleaned_tests)
-                
-                # Add new tests to test file
-                self.save_tests(cleaned_tests, append=True)
+            self._report_coverage(coverage_data)
+            return True
         
-        # If we get here, we didn't reach target coverage
-        print(f"⚠️ Could not reach target coverage of {self.target_coverage}% after {self.iterations} iterations.")
-        final_coverage = self.test_runner.analyze_coverage(self.target_coverage)
-        print(f"Final coverage: {final_coverage.get('coverage_pct', 0)}%")
+        # If test file doesn't exist, create it
+        print(f"Creating new test file: {self.test_file}")
         
-        return False
+        # Build prompt with source code
+        prompt = build_prompt(
+            source_code=source_code,
+            existing_tests=None,
+            coverage_report=None,
+        )
+        
+        # Call AI model to generate new tests
+        generated_tests = self.ai_caller.call_model(prompt)
+        
+        # Clean up generated test code
+        cleaned_tests = self._clean_up_tests(generated_tests)
+        
+        # Ensure tests have correct imports
+        cleaned_tests = self._ensure_required_imports(cleaned_tests)
+        
+        # Add new tests to test file
+        self.save_tests(cleaned_tests, append=False)
+        
+        # Run tests and analyze coverage
+        coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
+        print(f"Coverage after test generation: {coverage_data.get('coverage_pct', 0)}% (Target: {self.target_coverage}%)")
+        self._report_coverage(coverage_data)
+        
+        return True
     
     def _clean_up_tests(self, tests):
         """Clean up the generated tests."""

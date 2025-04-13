@@ -38,6 +38,16 @@ class TestRunner:
             result = subprocess.run(run_cmd, capture_output=True, text=True)
             success = result.returncode == 0
             
+            # Parse failed tests
+            failed_tests = []
+            if not success:
+                # Use regex to parse failed tests from pytest output
+                for line in result.stdout.split('\n'):
+                    # Find lines with FAILED format
+                    failed_match = re.search(r'(FAILED|ERROR)\s+(.*?::.*?)(\s|$)', line)
+                    if failed_match:
+                        failed_tests.append(failed_match.group(2))
+            
             # Generate and capture the coverage report output directly
             report_cmd = ["coverage", "report", "-m"]
             report_result = subprocess.run(report_cmd, capture_output=True, text=True)
@@ -79,7 +89,8 @@ class TestRunner:
                 'target_reached': target_reached,
                 'stdout': result.stdout,
                 'stderr': result.stderr,
-                'report': report_output  # Include the full report for use in prompts
+                'report': report_output,  # Include the full report for use in prompts
+                'failed_tests': failed_tests  # Include failed tests in return data
             }
         
         except Exception as e:
@@ -92,5 +103,6 @@ class TestRunner:
                 'target_reached': False,
                 'stdout': "",
                 'stderr': str(e),
-                'report': ""
+                'report': "",
+                'failed_tests': []
             }

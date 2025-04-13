@@ -14,7 +14,6 @@ def parse_args():
     parser.add_argument("--test-file", help="Path to the test file (default: test_<source>.py)")
     parser.add_argument("--model", default="gpt-4o", help="AI model to use (default: gpt-4o)")
     parser.add_argument("--target-coverage", type=int, default=80, help="Target coverage percentage (default: 80)")
-    parser.add_argument("--max-iterations", type=int, default=3, help="Maximum iterations to try (default: 3)")
     
     return parser.parse_args()
 
@@ -41,24 +40,17 @@ def main():
         target_coverage=args.target_coverage
     )
     
-    
-    # Generate tests with iterations until target coverage reached
+    # Generate tests (only if test file doesn't exist)
     print(f"{Fore.YELLOW}Target coverage: {args.target_coverage}%{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}Maximum iterations: {args.max_iterations}{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}Source file: {args.source_file}{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}Test file: {generator.test_file}{Style.RESET_ALL}")
     
     # Generate tests
     print(f"\n{Fore.GREEN}Starting test generation...{Style.RESET_ALL}")
-    target_reached = generator.generate_tests(iterations=args.max_iterations)
+    success = generator.generate_tests()
     
     # Final message
-    if target_reached:
-        print(f"\n{Fore.GREEN}✅ Success! Target coverage of {args.target_coverage}% achieved.{Style.RESET_ALL}")
-    else:
-        print(f"\n{Fore.YELLOW}⚠️ Finished generating tests but did not reach target coverage of {args.target_coverage}%.{Style.RESET_ALL}")
-    
-    print(f"{Fore.CYAN}Tests saved to: {generator.test_file}{Style.RESET_ALL}")
+    print(f"\n{Fore.CYAN}Tests saved to: {generator.test_file}{Style.RESET_ALL}")
 
 if __name__ == "__main__":
     main()
