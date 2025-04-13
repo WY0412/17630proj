@@ -1,0 +1,25 @@
+Test Results Log
+==================================================
+
+Assertion failed: assert square_nums([1.1, 2.2, 3.3]) == [1.21, 4.84, 10.89]
+Assertion failed: assert square_nums([1, float('nan'), 2]) == [1, float('nan'), 4]
+Assertion failed: assert square_nums([float('nan')]) == [float('nan')]
+Assertion failed: assert square_nums([0, float('nan'), -1]) == [0, float('nan'), 1]
+Assertion failed: assert square_nums([float('nan'), float('nan')]) == [float('nan'), float('nan')]
+Assertion failed: assert square_nums([3, 4, float('nan')]) == [9, 16, float('nan')]
+Variable error in: assert result == expected_output - name 'result' is not defined
+
+==================================================
+Test Result Summary:
+Total tests: 66
+Failed tests: 7
+Success rate: 89.39%
+
+List of Failed Tests:
+1. Assertion failed: assert square_nums([1.1, 2.2, 3.3]) == [1.21, 4.84, 10.89]
+2. Assertion failed: assert square_nums([1, float('nan'), 2]) == [1, float('nan'), 4]
+3. Assertion failed: assert square_nums([float('nan')]) == [float('nan')]
+4. Assertion failed: assert square_nums([0, float('nan'), -1]) == [0, float('nan'), 1]
+5. Assertion failed: assert square_nums([float('nan'), float('nan')]) == [float('nan'), float('nan')]
+6. Assertion failed: assert square_nums([3, 4, float('nan')]) == [9, 16, float('nan')]
+7. Variable error in: assert result == expected_output - name 'result' is not defined

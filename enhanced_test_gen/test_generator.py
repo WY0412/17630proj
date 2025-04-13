@@ -25,6 +25,7 @@ class TestGenerator:
             source_basename = os.path.basename(source_file)
             source_name = os.path.splitext(source_basename)[0]
             self.test_file = os.path.join(os.path.dirname(source_file), f"test_{source_name}.py")
+            self.test_name = f"test_{source_name}.py"
         else:
             self.test_file = test_file
             
@@ -161,6 +162,36 @@ class TestGenerator:
             print(f"\n❌ Failed tests ({len(failed_tests)}):")
             for test in failed_tests:
                 print(f"  - {test}")
+                
+    def generate_tests_from_json(self):
+        """
+        Generate tests from JSON data
+        """
+        # Read source JSON data
+        source_data = self.read_source_json()
+         # Check if test file exists
+        existing_tests = self.read_existing_tests()
+        if existing_tests:
+            print(f"Found existing test file: {self.test_file}")
+            # Run tests and analyze coverage
+            coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
+            self._report_coverage(coverage_data)
+            return True
+        
+        # If test file doesn't exist, create it
+        print(f"Creating new test file: {self.test_file}")
+        
+        # Call AI model to generate new tests
+        output_dir = os.path.dirname(self.source_file)
+        self.ai_caller.generate_py(source_data, output_dir, self.test_name)
+        # print("Generated tests:")
+        # print(generated_tests)
+        # runner = TestRunner(generated_tests)
+        # # Run tests and analyze coverage
+        # coverage_data = runner.analyze_coverage(self.target_coverage)
+        coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
+        print(f"Coverage after test generation: {coverage_data.get('coverage_pct', 0)}% (Target: {self.target_coverage}%)")
+        self._report_coverage(coverage_data)
 
     def generate_tests(self):
         """

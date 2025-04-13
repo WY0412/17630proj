@@ -1,10 +1,10 @@
 [
-    {
-        "code": "def similar_elements(test_tup1, test_tup2):\n  res = tuple(set(test_tup1) & set(test_tup2))\n  return (res) ",
-        "unit tests": [
-          "assert set(similar_elements((3, 4, 5, 6),(5, 7, 4, 10))) == set((4, 5))",
-          "assert set(similar_elements((1, 2, 3, 4),(5, 4, 3, 7))) == set((3, 4))",
-          "assert set(similar_elements((11, 12, 14, 13),(17, 15, 14, 13))) == set((13, 14))"
-        ]
-      }
+  {
+    "code": "def square_nums(nums):\n square_nums = list(map(lambda x: x ** 2, nums))\n return square_nums",
+    "unit tests": [
+      "assert square_nums([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])==[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]",
+      "assert square_nums([10,20,30])==([100,400,900])",
+      "assert square_nums([12,15])==([144,225])"
+    ]
+  }
 ]

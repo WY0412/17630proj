@@ -28,6 +28,8 @@ class TestRunner:
         return result.returncode == 0, result.stdout, result.stderr
     
     def analyze_coverage(self, target_coverage=80):
+        print("Analyzing coverage...")
+        print(self.test_file)
         """Run tests with coverage analysis and return report from 'coverage report -m'"""
         try:
             # Run the coverage command
