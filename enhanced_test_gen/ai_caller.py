@@ -141,12 +141,14 @@ class AICaller:
         YOU NEED TO FOLLOW THE REQUIREMENTS BELOW:
         - DO NOT USE ANY OTHER FUNCTIONS OR LIBRARIES UNLESS THEY ARE DEFINED IN THE CODE CHUNK
         - DO NOT USE ANY VARIABLES THAT ARE NOT DEFINED IN THE CODE CHUNK
+        - DO NOT CONTAIN "" IN THE ASSERT STATEMENTS, REPLACE THEM WITH ''
+        - ONLY CREATE ASSERT STATEMENTS CAN BE EVALUATED BY PYTHON
         
         Here are 2 examples you should not follow:
-        assert result == expected_output
-        assert first_output == second_output == third_output 
-        This is wrong because result, expected_output, first_output, second_output and third_output are not defined in the code chunk.
-        
+        1. assert result == expected_output
+        This is wrong because result, expected_output are not defined in the code chunk.
+        2. assert False, 'Expected TypeError for non-tuple input'
+        This is wrong because it is not an assert statement, cannot be evaluated by Python.
 
         The code is:
         {code_chunk}
@@ -200,7 +202,7 @@ class AICaller:
     def generate_py(self, dataset, output_dir, filename):
         print("Generating py...")
         code_to_tests = {}
-        code = dataset[0]['code']
+        code = dataset['code']
         try:
             agent1_output = self.agent1_decompose(code)
             agent2_output = self.run_agent_2(agent1_output)

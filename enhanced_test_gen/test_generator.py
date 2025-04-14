@@ -23,9 +23,9 @@ class TestGenerator:
         # If test file not specified, create one based on source filename
         if test_file is None:
             source_basename = os.path.basename(source_file)
-            source_name = os.path.splitext(source_basename)[0]
-            self.test_file = os.path.join(os.path.dirname(source_file), f"test_{source_name}.py")
-            self.test_name = f"test_{source_name}.py"
+            self.source_name = os.path.splitext(source_basename)[0]
+            self.test_file = os.path.join(os.path.dirname(source_file), f"test_{self.source_name}.py")
+            self.test_name = f"test_{self.source_name}.py"
         else:
             self.test_file = test_file
             
@@ -170,35 +170,39 @@ class TestGenerator:
         # Read source JSON data
         source_data = self.read_source_json()
          # Check if test file exists
-        existing_tests = self.read_existing_tests()
-        if existing_tests:
-            print(f"Found existing test file: {self.test_file}")
-            # Run tests and analyze coverage
-            coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
-            self._report_coverage(coverage_data)
-            return True
+        # existing_tests = self.read_existing_tests()
+        # if existing_tests:
+        #     print(f"Found existing test file: {self.test_file}")
+        #     # Run tests and analyze coverage
+        #     coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
+        #     self._report_coverage(coverage_data)
+        #     return True
         
         # If test file doesn't exist, create it
         print(f"Creating new test file: {self.test_file}")
         
         # Call AI model to generate new tests
         output_dir = os.path.dirname(self.source_file)
-        self.ai_caller.generate_py(source_data, output_dir, self.test_name)
-        # print("Generated tests:")
-        # print(generated_tests)
-        # runner = TestRunner(generated_tests)
-        # # Run tests and analyze coverage
-        # coverage_data = runner.analyze_coverage(self.target_coverage)
-        coverage_data = self.test_runner.analyze_coverage(self.target_coverage)
-        print(f"Coverage after test generation: {coverage_data.get('coverage_pct', 0)}% (Target: {self.target_coverage}%)")
-        self._report_coverage(coverage_data)
+        dataset_size = len(source_data)
+        for i in range(dataset_size):
+            test_name = f"test_{self.source_name}_{i}.py"
+            self.ai_caller.generate_py(source_data[i], output_dir, test_name)
+            # print("Generated tests:")
+            # print(generated_tests)
+            # runner = TestRunner(generated_tests)
+            # # Run tests and analyze coverage
+            # coverage_data = runner.analyze_coverage(self.target_coverage)
+            test_file = os.path.join(output_dir, test_name)
+            coverage_data = TestRunner(test_file).analyze_coverage(self.target_coverage)
+            print(f"Coverage after test generation: {coverage_data.get('coverage_pct', 0)}% (Target: {self.target_coverage}%)")
+            self._report_coverage(coverage_data)
 
     def generate_tests(self):
         """
         Generate tests only if test file doesn't exist
         """
         # Read source code
-        source_code = self.read_source_code()
+        source_code = self.read_source_code()  
         
         # Check if test file exists
         existing_tests = self.read_existing_tests()
